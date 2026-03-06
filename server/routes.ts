@@ -4,10 +4,12 @@ import { storage } from "./storage";
 import { sessionStateSchema } from "@shared/schema";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-});
+function getOpenAI() {
+  return new OpenAI({
+    apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY || "dummy",
+    baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+  });
+}
 
 export async function registerRoutes(
   httpServer: Server,
@@ -63,7 +65,7 @@ export async function registerRoutes(
         2: `Distorsiona esta palabra en algo relacionado pero extraño o surrealista. Cambia letras, mezcla con conceptos inesperados. Responde solo con 1-3 palabras. Palabra: "${textStr}"`,
       };
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAI().chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
           {
@@ -105,7 +107,7 @@ export async function registerRoutes(
     const wordsList = words as string[];
 
     try {
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAI().chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
           {
